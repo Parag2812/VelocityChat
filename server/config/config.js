@@ -3,22 +3,16 @@ dotenv.config();
 
 export default {
   development: {
-    url: process.env.DATABASE_URL,
-    dialect: 'postgres',
+    "username": "postgres",
+    "password": "mysecretpassword",
+    "database": "mydevdb",
+    "host": "127.0.0.1",
+    "dialect": "postgres",
     dialectOptions: {
-      ssl: {
-        require: true,
-        rejectUnauthorized: false
-      },
-      connectionTimeoutMillis: 60000  // 60 seconds
+      ssl: false,
     },
-    pool: {
-      max: 5,
-      min: 0,
-      acquire: 60000,  // 60 seconds
-      idle: 10000
-    }
   },
+  
   production: {
     url: process.env.DATABASE_URL,
     dialect: 'postgres',
@@ -27,6 +21,7 @@ export default {
         require: true,
         rejectUnauthorized: false
       },
+      preferQueryMode: 'simple',
       connectionTimeoutMillis: 60000
     },
     pool: {

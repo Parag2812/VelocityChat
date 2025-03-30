@@ -1,4 +1,5 @@
-// server.js (ES Module version)
+import dotenv from 'dotenv';
+dotenv.config();
 
 import express from 'express';
 import http from 'http';
@@ -6,17 +7,19 @@ import cors from 'cors';
 // import {socketIO} from'socket.io';
 import helmet from 'helmet';
 import morgan from 'morgan';
-import dotenv from 'dotenv';
+
+
+
+
+console.log("DATABASE_URL:", process.env.DATABASE_URL);
 import { Server } from 'socket.io';
-import db from './models/index.js'; // <-- Import the db object here
-
-
+import { sequelize,runMigrations} from './models/index.js';
 
 
 // Import your route modules (note the .js extension)
 import userRoutes from './routes/user.js';
-// import chatRoutes from './routes/chat.js';
-// import messageRoutes from './routes/message.js';
+import chatRoutes from './routes/chat.js';
+import messageRoutes from './routes/message.js';
 
 const app = express();
 
@@ -32,8 +35,8 @@ app.use(morgan('dev'));  // Log HTTP requests
 
 // Use routes
 app.use('/api/users', userRoutes);
-// app.use('/api/chats', chatRoutes);
-// app.use('/api/messages', messageRoutes);
+app.use('/api/chats', chatRoutes);
+app.use('/api/messages', messageRoutes);
 
 
 // Create the HTTP server after setting up the app
@@ -96,16 +99,16 @@ app.get('/api/test',(req, res)=>{
 
 
 // Test database connection and sync models
-db.sequelize
+sequelize
   .authenticate()
-  .then(() => {
+  .then(async () => {
     console.log('Connected to PostgreSQL');
-    return db.sequelize.sync();
+    await runMigrations(); // Run migrations after successful connection
+    // return sequelize.sync({ alter: true }); // If you need to sync models (use with caution in production)
   })
-  .catch(err => {
+  .catch((err) => {
     console.error('Unable to connect to the database:', err);
   });
-
 
 
 const PORT = process.env.PORT || 3000;
